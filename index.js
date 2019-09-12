@@ -37,8 +37,8 @@ async function getGoodRxPrices(url, options, drugId, query, values, client) {
             };
             
             // console.log("pricingData"+pricingData);
-            // if(pricingData.id =drugId )
-            // console.log("DRUG_DETAILS_ID: price " + pricingData.price);
+            
+            console.log("DRUG_DETAILS_ID: " + pricingData.drug_details_id);
             
             query = 'INSERT INTO public_price(average_price, createdat, difference, drug_details_id, lowest_market_price, pharmacy, price, program_id, recommended_price) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;'
             values = [
@@ -58,17 +58,10 @@ async function getGoodRxPrices(url, options, drugId, query, values, client) {
             // PLACE PRICE RESULT INTO PUBLIC_PRICE TABLE
             await client.query(query, values)
                 .then((response) => {
-                    if(drugId == "265666"){
-                        console.log("Success")
-                    }
                     // console.log("Success: " + drugId);
                     return response;
                 })
-                .catch((error) => {
-                    console.log("Failure: " + drugId);
-                    console.log("URL: " + url)
-                    
-                });   
+                .catch((error) => console.log(error));   
         }
     }).catch(function(error) { 
         console.log("Failure: " + drugId);
@@ -120,9 +113,7 @@ exports.handler = async function(event) {
             var grxId = req.rows[0].good_rx_id;
             
             url = `https://goodrx.com/api/v4/drugs/${grxId}/prices?location=${longitude},${latitude}&location_type=LAT_LNG_GEO_IP&quantity=${quantity}`;
-            if(drugId == "265666"){
-                        console.log(url)
-                    }
+            
             const options = {
                 url: url,
                 method: 'GET',
@@ -135,10 +126,10 @@ exports.handler = async function(event) {
                 }
             };
             
-            if (priceCount % 15 === 0) {
-                // console.log("About to be blocked, waiting...")
+            if (priceCount % 30 === 0) {
+                console.log("About to be blocked, waiting...")
                 await sleep(60000);
-                // console.log("Waited 1min")
+                console.log("Waited 1min")
             }
             
             try {
@@ -148,7 +139,7 @@ exports.handler = async function(event) {
                 
                 priceCount = priceCount + 1;
             } catch (error) {
-                // console.log(error);
+                console.log(error);
             }
         } 
         
