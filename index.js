@@ -23,6 +23,18 @@ async function getGoodRxPrices(url, options, drugId, query, values, client) {
         if (data != undefined) {
             var results = data.results;
                         
+            var lowestPrice =  parseFloat(results[0].prices[0].price) ;
+            var lowestPharmacy=results[0].pharmacy.name;
+            results.forEach(function(value){
+                if(value!= null){
+                    if(lowestPrice > parseFloat(value.prices[0].price)){
+                        lowestPrice =  parseFloat(value.prices[0].price);
+                        lowestPharmacy=value.pharmacy.name;
+                    }
+                   
+                }
+            });
+            
             const pricingData = {
                 //id : "",
                 average_price : 0.0,
@@ -30,8 +42,8 @@ async function getGoodRxPrices(url, options, drugId, query, values, client) {
                 difference : 0.0,
                 lowest_market_price : 0.0,
                 drug_details_id : drugId,
-                pharmacy : results[0].pharmacy.name,
-                price : results[0].prices[0].price,
+                pharmacy : lowestPharmacy,
+                price : lowestPrice,
                 program_id : 6,
                 recommended_price : 0.0,   
             };
